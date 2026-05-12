@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAEX8BjlYjsHOxDwD-Wu9qyFyIR3Wb6RxQ",
@@ -14,18 +14,31 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// دالة الطباعة الاحترافية
+// دالة الطباعة الاحترافية (معدلة لإخفاء التواريخ والروابط)
 window.printPage = (url) => {
     printJS({
         printable: url,
         type: 'image',
-        documentTitle: 'مكتبة أثر - طلب طباعة',
-        imageStyle: 'width:100%;', // يضمن ملء ورقة الـ A4
-        // مكتبة Print.js تفتح نافذة الطباعة الخاصة بالمتصفح
-        // ومنها تختار (طباعة على الوجهين / ألوان / الخ)
+        // كود CSS هذا يخبر المتصفح بإلغاء الهوامش، مما يؤدي تلقائياً لإخفاء رابط الموقع والتاريخ والترقيم
+        style: '@page { margin: 0; } @media print { body { margin: 0; } img { width: 100% !important; height: auto !important; } }',
+        imageStyle: 'width:100%; display:block;'
     });
 };
 
+// دالة حذف الطلب من قاعدة البيانات نهائياً
+window.deleteOrder = (orderId) => {
+    if (confirm("هل أنت متأكد من حذف هذا الطلب نهائياً؟")) {
+        remove(ref(db, 'orders/' + orderId))
+            .then(() => {
+                console.log("تم حذف الطلب بنجاح");
+            })
+            .catch((error) => {
+                alert("حدث خطأ أثناء الحذف: " + error.message);
+            });
+    }
+};
+
+// جلب وعرض الطلبات
 onValue(ref(db, 'orders'), (snapshot) => {
     const list = document.getElementById('orders-list');
     list.innerHTML = "";
@@ -38,36 +51,39 @@ onValue(ref(db, 'orders'), (snapshot) => {
     const ordersArray = [];
     snapshot.forEach(child => ordersArray.push({ id: child.key, ...child.val() }));
     
+    // عرض الطلبات الحديثة أولاً
     ordersArray.reverse().forEach(order => {
         const date = new Date(order.timestamp).toLocaleString('ar-IQ');
-        
-        // التعامل مع النظام القديم (صورة واحدة) والنظام الجديد (عدة صفحات)
         let pagesHtml = '';
+        
+        // التحقق القوي من وجود صفحات متعددة لضمان عرضها بالكامل
+        let pagesToRender = [];
         if (order.pages && Array.isArray(order.pages)) {
-            order.pages.forEach((pageUrl, index) => {
-                pagesHtml += `
-                    <div class="page-card">
-                        <p>صفحة ${index + 1}</p>
-                        <img src="${pageUrl}" alt="صفحة ${index + 1}">
-                        <button class="print-btn" onclick="printPage('${pageUrl}')">🖨️ طباعة هذه الصفحة</button>
-                    </div>
-                `;
-            });
+            pagesToRender = order.pages;
         } else if (order.imgUrl) {
-            pagesHtml += `
-                <div class="page-card">
-                    <p>صفحة 1 (نظام قديم)</p>
-                    <img src="${order.imgUrl}" alt="صفحة">
-                    <button class="print-btn" onclick="printPage('${order.imgUrl}')">🖨️ طباعة</button>
-                </div>
-            `;
+            pagesToRender = [order.imgUrl]; // دعم النظام القديم إذا وجد
         }
 
+        // بناء بطاقات الصفحات داخل المجلد
+        pagesToRender.forEach((pageUrl, index) => {
+            pagesHtml += `
+                <div class="page-card">
+                    <p>صفحة ${index + 1}</p>
+                    <img src="${pageUrl}" alt="صفحة ${index + 1}">
+                    <button class="print-btn" onclick="printPage('${pageUrl}')">🖨️ طباعة</button>
+                </div>
+            `;
+        });
+
+        // طباعة المجلد في الشاشة
         list.innerHTML += `
-            <div class="order-folder">
+            <div class="order-folder" id="folder-${order.id}">
                 <div class="folder-header">
                     <h2>📁 زبون: ${order.customer}</h2>
-                    <span>🕒 ${date}</span>
+                    <div class="folder-info">
+                        <span>🕒 ${date}</span>
+                        <button class="delete-btn" onclick="deleteOrder('${order.id}')">🗑️ حذف الطلب</button>
+                    </div>
                 </div>
                 <div class="pages-grid">
                     ${pagesHtml}
