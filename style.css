@@ -1,0 +1,146 @@
+/* --- style.css (Admin Dashboard) --- */
+
+:root {
+    --primary: #2563eb;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --card-bg: rgba(0, 0, 0, 0.25);
+    --text-main: #ffffff;
+    --text-muted: #cbd5e1;
+    --accent: #4ade80;
+}
+
+body {
+    background: linear-gradient(135deg, #0f172a, #1e1e2f, #2563eb);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* لجعل اللوحة تبدأ من الأعلى بدلاً من المنتصف */
+}
+
+/* حاوية لوحة التحكم الرئيسية */
+.glass-container {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 900px; /* عرض أكبر ليناسب لوحة التحكم */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    margin-top: 2vh;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 20px;
+}
+
+header h1 {
+    margin: 0 0 10px 0;
+    font-size: 2.2rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* شبكة عرض الطلبات */
+#orders-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* كرت الطلب الخاص بكل زبون */
+.order-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease, background 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    background: rgba(0, 0, 0, 0.35);
+    border-color: var(--glass-border);
+}
+
+.order-card h3 {
+    margin: 0 0 10px 0;
+    color: var(--accent);
+    font-size: 1.3rem;
+}
+
+.order-card p {
+    margin: 0 0 15px 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* صورة المعاينة داخل الكرت */
+.order-card img {
+    width: 100%;
+    height: auto;
+    max-height: 350px;
+    object-fit: contain;
+    background: white; /* خلفية بيضاء لتوضيح حواف الـ A4 */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* زر الطباعة المباشر */
+.admin-btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+.admin-btn:hover {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.5);
+}
+
+/* التجاوب مع شاشات الهواتف للأدمن */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    .glass-container {
+        padding: 20px 15px;
+        margin-top: 0;
+        border-radius: 15px;
+    }
+    header h1 {
+        font-size: 1.8rem;
+    }
+    #orders-list {
+        grid-template-columns: 1fr;
+    }
+}
