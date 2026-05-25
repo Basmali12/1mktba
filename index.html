@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة الإدارة - مكتبة أثر</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="apple-touch-icon" href="./icon-192x192.png">
+    
     <link rel="stylesheet" href="style.css">
-    <!-- مكتبة الطباعة القوية -->
     <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
     <link rel="stylesheet" href="https://printjs-4de6.kxcdn.com/print.min.css">
 </head>
@@ -23,6 +26,29 @@
         </section>
     </div>
 
+    <div id="install-modal" class="install-modal" style="display: none;">
+        <div class="install-content glass-container">
+            <img src="./icon-192x192.png" alt="أيقونة التطبيق" class="install-icon">
+            <h3>تثبيت التطبيق</h3>
+            <p>قم بتثبيت التطبيق للوصول السريع لطلبات الطباعة.</p>
+            <div class="install-actions">
+                <button id="install-btn" class="print-btn">تثبيت الآن</button>
+                <button id="close-install-btn" class="delete-btn">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
