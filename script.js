@@ -92,3 +92,36 @@ onValue(ref(db, 'orders'), (snapshot) => {
         `;
     });
 });
+
+// منطق ظهور شاشة التثبيت الخاصة بـ PWA
+let deferredPrompt;
+const installModal = document.getElementById('install-modal');
+const installBtn = document.getElementById('install-btn');
+const closeInstallBtn = document.getElementById('close-install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // منع ظهور الشاشة الافتراضية
+    e.preventDefault();
+    // حفظ الحدث لاستخدامه لاحقاً
+    deferredPrompt = e;
+    // إظهار الشاشة المخصصة
+    if (installModal) installModal.style.display = 'flex';
+});
+
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        installModal.style.display = 'none';
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`نتيجة التثبيت: ${outcome}`);
+            deferredPrompt = null;
+        }
+    });
+}
+
+if (closeInstallBtn) {
+    closeInstallBtn.addEventListener('click', () => {
+        installModal.style.display = 'none';
+    });
+}
